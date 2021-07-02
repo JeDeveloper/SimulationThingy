@@ -1,15 +1,16 @@
 {
   "name": "default_params",
-  "genome_shape": [4, 8, 8, 16, 8],
-  "generations": 32,
+  "genome_shape": [4, 4],
+  "generations": 64,
   "carrying_capactiy": 16,
   "entity_name_length": 8,
   "mating_recombination_func": "recomb_func_average",
   "selection_pressure": "avoid_center",
+  "mate_choice_func": "random_mating",
   "consent": false,
   "semirandom_survival": false,
   "entity_num_mates": 1,
-  "entity_offspring_count": 4,
+  "entity_offspring_count": 8,
   "entity_lifespan": 1,
   "replications": 4
 }

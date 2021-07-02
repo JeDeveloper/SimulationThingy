@@ -1,3 +1,4 @@
+import sys
 import json
 from simulation import Simulation
 import logging
@@ -6,6 +7,15 @@ from os import sep
 
 class Experiment:
     def __init__(self, **kwargs):
+        root = logging.getLogger()
+        logging.basicConfig(filename=f"program_logs{sep}{self.param_set_name}_{str(datetime.now())}.log",
+                            level=logging.DEBUG)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        root.addHandler(handler)
+
         if 'params_file_path' in kwargs:
             with open(kwargs['params_file_path']) as f:
                 self.params = json.load(f)
@@ -14,7 +24,23 @@ class Experiment:
                 self.sims = [Simulation(rep, self.params) for rep in range(self.reps)]
                 self.exp_start_time = None
                 self.exp_end_time = None
-        logging.basicConfig(filename=f"sim_logs{sep}{self.param_set_name}_{str(datetime.now().strftime())}.log")
+        else:
+            assert 'experiment_file_path' in kwargs
+            with open(kwargs['experiment_file_path']) as expfile:
+                params = json.load(expfile)
+                self.param_set_name = params['name']
+                param_keys = [
+                    'genome_shape', 'generations', 'carrying_capactiy', 'entity_name_length',
+                    'mating_recombination_func', 'selection_pressure', 'mate_choice_func',
+                    'consent', 'semirandom_survival', 'entity_num_mates', 'entity_offspring_count',
+                    'entity_lifespan']
+                self.params = {key: params[key] for key in param_keys}
+                self.sims = [Simulation(sim['replication'], params, **sim) for sim in params['replications']]
+                self.reps = len(self.sims)
+
+                self.exp_start_time = datetime(**params['start_time'])
+                self.exp_end_time = datetime(**params['end_time'])
+
 
     def execute(self):
         self.exp_start_time = datetime.now()
@@ -38,4 +64,8 @@ class Experiment:
         replications_dict = []
         for sim in self.sims:
             replications_dict.append(sim.__dict__())
+        export_dict['replications'] = replications_dict
 
+        filename = f"sim_logs{sep}{self.param_set_name}_{str(self.exp_start_time)}.json"
+        with open(filename, 'w') as f:
+            json.dump(export_dict, f, indent="\t")

@@ -9,4 +9,5 @@ def recombine(context, *args):
     :return:
     """
     all_genomes = np.stack([e.genome for e in args])
+    context.rand.choice(all_genomes, shape=context.genome_shape(), axis=0) # TODO: is this actually what this function does
     return np.average(all_genomes, axis=0)

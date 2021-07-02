@@ -9,7 +9,7 @@ class Entity:
 
     # accessors
     def name(self):
-        return self.name()
+        return self.__name
 
     def num_mates(self):
         return self.__num_mates
@@ -20,15 +20,18 @@ class Entity:
     def lifespan(self):
         return self.__lifespan
 
-    def choose_mates(self, prospectives_list):
-        pass
-
     def age(self):
         return self.__age
 
     def copy_to_next_gen(self):
-        return Entity(self.genome, self.name(), self.age() + 1,
+        return Entity(self.name(), self.genome, self.age() + 1,
                       num_mates=self.num_mates(),
                       offspring_count=self.offspring_count(),
                       lifespan=self.lifespan())
 
+    def __dict__(self):
+        return {
+            "name": self.name(),
+            "age": self.age(),
+            "genome": str(self.genome)
+        }
