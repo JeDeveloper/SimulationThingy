@@ -12,7 +12,7 @@ class Generation:
             self.ending_population = [e for e in self.starting_population]
 
         else:
-            if 'gen_number' not in kwargs:
+            if 'gen_number' in kwargs:
                 self.gen_number = kwargs['gen_number']
             else:
                 self.gen_number = 0

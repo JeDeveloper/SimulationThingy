@@ -7,19 +7,15 @@ from os import sep
 
 class Experiment:
     def __init__(self, **kwargs):
-        root = logging.getLogger()
-        logging.basicConfig(filename=f"program_logs{sep}{self.param_set_name}_{str(datetime.now())}.log",
-                            level=logging.DEBUG)
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        root.addHandler(handler)
-
+        """
+        :param kwargs: a set of keyword arguements. include params_file_path to create a new experiment from an
+         experimental parameters JSON, or experiment_file_path to load an existing experiment
+        """
         if 'params_file_path' in kwargs:
             with open(kwargs['params_file_path']) as f:
                 self.params = json.load(f)
                 self.param_set_name = self.params['name']
+                self.config_log()
                 self.reps = self.params['replications']
                 self.sims = [Simulation(rep, self.params) for rep in range(self.reps)]
                 self.exp_start_time = None
@@ -29,6 +25,7 @@ class Experiment:
             with open(kwargs['experiment_file_path']) as expfile:
                 params = json.load(expfile)
                 self.param_set_name = params['name']
+                self.config_log()
                 param_keys = [
                     'genome_shape', 'generations', 'carrying_capactiy', 'entity_name_length',
                     'mating_recombination_func', 'selection_pressure', 'mate_choice_func',
@@ -41,6 +38,15 @@ class Experiment:
                 self.exp_start_time = datetime(**params['start_time'])
                 self.exp_end_time = datetime(**params['end_time'])
 
+    def config_log(self):
+        root = logging.getLogger()
+        logging.basicConfig(filename=f"program_logs{sep}{self.param_set_name}_{str(datetime.now())}.log",
+                            level=logging.DEBUG)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        root.addHandler(handler)
 
     def execute(self):
         self.exp_start_time = datetime.now()
